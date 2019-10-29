@@ -14,5 +14,5 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v1
-      - name: Run
-        run: go run main.go
+      - name: build
+        run: go build
