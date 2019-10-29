@@ -33,6 +33,13 @@ func (t *BaseController) Err(c *gin.Context, err error) {
 	})
 }
 
+func (t *BaseController) ErrData(c *gin.Context, err error) {
+	t.Api(c, http.StatusOK, gin.H{
+		"status": "error",
+		"msg": err.Error(),
+	})
+}
+
 const (
 	ErrorRequest = RequestError("请求异常")
 	AuthCodeError = RequestError("authCode错误")
