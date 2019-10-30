@@ -18,6 +18,7 @@ func routeApi(g *gin.Engine) {
 	g.POST("/service/oauth/token", userController.Token)           // (uuc)token处理
 	g.POST("/cuba/checkUser", userController.CheckTenantUser)      // 检查租户用户
 	g.POST("/cuba/getAllUser", userController.GetTenantAllUser)    // 获取租户下所有用户信息
+	g.POST("/cuba/changeUserRole", userController.ChangeUserRole)  // 修改用户在OpenAPI的角色名称
 
 	storeController := new(controller.StoreController)
 	g.POST("/store/apply", storeController.Apply)                   // (store)申请上架

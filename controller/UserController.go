@@ -5,6 +5,7 @@ import (
 	"github.com/zc2638/go-validator"
 	"mock/data"
 	"mock/service"
+	"mock/util/db"
 	"mock/util/jwtUtil"
 	"strings"
 )
@@ -146,27 +147,7 @@ func (t *UserController) CheckTenantUser(c *gin.Context) {
 	}
 
 	userService := new(service.UserService)
-	tenants, err := userService.GetTenants()
-	if err != nil {
-		t.Err(c, err)
-		return
-	}
-
-	var tenantInfo data.TenantInfo
-	for _, t := range tenants {
-		if t.ID != tenantId {
-			continue
-		}
-		for _, u := range t.Users {
-			if u.ID == userId {
-				tenantInfo.ID = t.ID
-				tenantInfo.Name = t.Name
-				tenantInfo.Desc = t.Desc
-				tenantInfo.Role = u.Role
-				break
-			}
-		}
-	}
+	tenantInfo := userService.CheckTenantUser(userId, tenantId)
 	if tenantInfo.ID == "" {
 		t.Err(c, AuthError)
 		return
@@ -221,5 +202,38 @@ func (t *UserController) GetTenantAllUser(c *gin.Context) {
 	}
 	t.Data(c, gin.H{
 		"userList": tenantUserData,
+	})
+}
+
+// 修改用户的openAPI角色
+func (t *UserController) ChangeUserRole(c *gin.Context) {
+
+	userId := c.PostForm("userId")
+	tenantId := c.PostForm("tenantId")
+	role := c.PostForm("role")
+
+	validate := validator.NewVdr()
+	validate.MakeValue(userId, "required", "msg=未找到用户")
+	validate.MakeValue(tenantId, "required", "msg=未找到租户")
+	validate.MakeValue(role, "required", "msg=角色不能为空")
+	if err := validate.Check(); err != nil {
+		t.ErrData(c, err)
+		return
+	}
+
+	userService := new(service.UserService)
+	tenantInfo := userService.CheckTenantUser(userId, tenantId)
+	if tenantInfo.ID == "" {
+		t.ErrData(c, AuthError)
+		return
+	}
+
+	if err := db.Update(CUBA, tenantId + userId, role); err != nil {
+		t.ErrData(c, err)
+		return
+	}
+	t.Data(c, gin.H{
+		"status": "success",
+		"message": "操作成功",
 	})
 }

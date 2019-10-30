@@ -36,7 +36,7 @@ func (t *BaseController) Err(c *gin.Context, err error) {
 func (t *BaseController) ErrData(c *gin.Context, err error) {
 	t.Api(c, http.StatusOK, gin.H{
 		"status": "error",
-		"msg": err.Error(),
+		"message": err.Error(),
 	})
 }
 
@@ -46,6 +46,16 @@ const (
 	TokenError = RequestError("token异常")
 	AuthError = RequestError("身份认证失败")
 	TenantError = RequestError("租户认证失败")
+)
+
+const (
+	Store = "store"
+	CUBA = "cuba"
+)
+const (
+	StatusApply    int = iota // 申请中
+	StatusRefuse              // 拒绝
+	StatusApproval            // 通过
 )
 
 type RequestError string

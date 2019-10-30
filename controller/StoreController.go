@@ -13,13 +13,6 @@ import (
  */
 type StoreController struct{ BaseController }
 
-const Store = "store"
-const (
-	StatusApply    int = iota // 申请中
-	StatusRefuse              // 拒绝
-	StatusApproval            // 通过
-)
-
 // 申请上架
 func (t *StoreController) Apply(c *gin.Context) {
 

@@ -41,6 +41,32 @@ func (s *UserService) GetTenants() ([]data.Tenant, error) {
 	return tenants, err
 }
 
+// 检查租户用户
+func (s *UserService) CheckTenantUser(userId, tenantId string) data.TenantInfo {
+
+	var tenantInfo data.TenantInfo
+	tenants, err := s.GetTenants()
+	if err != nil {
+		return tenantInfo
+	}
+
+	for _, t := range tenants {
+		if t.ID != tenantId {
+			continue
+		}
+		for _, u := range t.Users {
+			if u.ID == userId {
+				tenantInfo.ID = t.ID
+				tenantInfo.Name = t.Name
+				tenantInfo.Desc = t.Desc
+				tenantInfo.Role = u.Role
+				break
+			}
+		}
+	}
+	return tenantInfo
+}
+
 // 生成用户token
 func (s *UserService) CreateUserToken(user data.User) (data.UserToken, error) {
 
