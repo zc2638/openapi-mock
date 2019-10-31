@@ -17,6 +17,7 @@ func (t *BaseController) Api(c *gin.Context, code int, data interface{}) {
 
 func (t *BaseController) Succ(c *gin.Context, msg string) {
 	t.Api(c, http.StatusOK, gin.H{
+		"status": "success",
 		"msg": msg,
 	})
 }
@@ -46,12 +47,9 @@ const (
 	TokenError = RequestError("token异常")
 	AuthError = RequestError("身份认证失败")
 	TenantError = RequestError("租户认证失败")
+	TenantRepeat = RequestError("租户已存在")
 )
 
-const (
-	Store = "store"
-	CUBA = "cuba"
-)
 const (
 	StatusApply    int = iota // 申请中
 	StatusRefuse              // 拒绝

@@ -1,11 +1,10 @@
 package controller
 
 import (
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/zc2638/go-validator"
 	"mock/data"
-	"mock/util/db"
+	"mock/service"
 )
 
 /**
@@ -33,20 +32,15 @@ func (t *StoreController) Apply(c *gin.Context) {
 		return
 	}
 
-	b, err := json.Marshal(data.ApiData{
+	storeService := service.StoreService{}
+	if err := storeService.Apply(data.ApiData{
 		TenantName: tenantName,
 		UserName:   userName,
 		ApiId:      apiId,
 		ApiName:    apiName,
 		ApiDesc:    apiDesc,
 		Status:     StatusApply,
-	})
-	if err != nil {
-		t.ErrData(c, err)
-		return
-	}
-
-	if err := db.Update(Store, apiId, string(b)); err != nil {
+	}); err != nil {
 		t.ErrData(c, err)
 		return
 	}
@@ -67,13 +61,8 @@ func (t *StoreController) Force(c *gin.Context) {
 		return
 	}
 
-	_, err := db.View(Store, apiId)
-	if err != nil {
-		t.ErrData(c, err)
-		return
-	}
-
-	if err := db.Delete(Store, apiId); err != nil {
+	storeService := service.StoreService{}
+	if err := storeService.Force(apiId); err != nil {
 		t.ErrData(c, err)
 		return
 	}

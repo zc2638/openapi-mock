@@ -4,13 +4,24 @@ package data
  * Created by zc on 2019-10-24.
  */
 type User struct {
-	ID       string `yaml:"id" json:"id"`
-	UserName string `yaml:"userName" json:"username"`
-	NickName string `yaml:"nickName" json:"nickname"`
-	Phone    string `yaml:"phone" json:"phone"`
-	Gender   int    `yaml:"gender"json:"gender"`
-	HeadImg  string `yaml:"headImg" json:"headImg"`
-	Code     string `yaml:"code" json:"code"`
+	ID       string `json:"id"`       // 用户id
+	UserName string `json:"username"` // 用户名称
+	NickName string `json:"nickname"` // 用户昵称
+	Phone    string `json:"phone"`    // 联系方式
+	Gender   int    `json:"gender"`   // 性别
+	HeadImg  string `json:"headImg"`  // 头像
+	Code     string `json:"code"`     // 8位校验码
+}
+
+type UserData struct {
+	User
+	TenantList []UserTenantData `json:"tenantList"` // 租户列表
+}
+
+type UserTenantData struct {
+	ID       string `json:"id"`       // 租户id
+	Name     string `json:"name"`     // 租户名称
+	UserType int    `json:"userType"` // 用户类型：0自建 1授权
 }
 
 type UserToken struct {
@@ -29,25 +40,16 @@ type AppToken struct {
 }
 
 type Tenant struct {
-	ID    string       `yaml:"id"`
-	Name  string       `yaml:"name"`
-	Desc  string       `yaml:"desc"`
-	Users []TenantUser `yaml:"users"`
-}
-
-type TenantUser struct {
-	ID   string `yaml:"id"`
-	Role string `yaml:"role"`
-}
-
-type TenantInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-	Desc string `json:"desc"`
-	Role string `json:"role"`
 }
 
-type TenantUserInfo struct {
+type TenantData struct {
+	Tenant
+	UserList []TenantUserData `json:"userList"`
+}
+
+type TenantUserData struct {
 	User
-	Role string `json:"role"`
+	UserType int `json:"userType"`
 }
