@@ -12,7 +12,6 @@
 *.out
 
 .idea
-
 go.sum
-
 mock
+db

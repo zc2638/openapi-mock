@@ -30,4 +30,7 @@ func routeApi(g *gin.Engine) {
 	g.POST("/store/force", storeController.Force)                   // (store)强制下架
 	g.POST("/store/auditStatus", storeController.AuditStatus)       // (store)修改审核状态（主动）
 	g.POST("/store/createContract", storeController.CreateContract) // (store)创建服务合同（主动）
+
+	templateController := new(controller.TemplateController)
+	g.GET("/mock/list", templateController.UserList)
 }

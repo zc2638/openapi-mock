@@ -18,7 +18,7 @@ func (t *BaseController) Api(c *gin.Context, code int, data interface{}) {
 func (t *BaseController) Succ(c *gin.Context, msg string) {
 	t.Api(c, http.StatusOK, gin.H{
 		"status": "success",
-		"msg": msg,
+		"message": msg,
 	})
 }
 

@@ -108,6 +108,7 @@ func (s *UserService) CreateUser(username, nickname, phone string) error {
 			Phone:    phone,
 			HeadImg:  "http://idiy.haier.com/upload/test/eeb3c64b-706c-4bb8-a8c3-dd25c6d35824.jpg",
 			Code:     strconv.Itoa(num),
+			Gender:   2,
 		},
 	})
 
