@@ -35,7 +35,11 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
 			tenantName := ""
 			if u.TenantList != nil {
 				for _, t := range u.TenantList {
-					tenantName += t.Name + `<br/>`
+					role := "用户"
+					if t.UserType == 0 {
+						role = "创始人"
+					}
+					tenantName += t.Name + "|" + role + `<br/>`
 				}
 				tenantName = strings.TrimRight(tenantName, "<br/>")
 			}
