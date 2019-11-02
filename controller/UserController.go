@@ -52,6 +52,17 @@ func (t *UserController) CreateTenant(c *gin.Context) {
 	t.Succ(c, "操作成功")
 }
 
+// 重置租户id
+func (t *UserController) ResetTenantIds(c *gin.Context) {
+
+	userService := service.UserService{}
+	if err := userService.ChangeTenantIds(); err != nil {
+		t.ErrData(c, err)
+		return
+	}
+	t.Succ(c, "操作成功")
+}
+
 // 新增用户
 func (t *UserController) CreateUser(c *gin.Context) {
 

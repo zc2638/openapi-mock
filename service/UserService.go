@@ -8,6 +8,7 @@ import (
 	"mock/data"
 	"mock/util/db"
 	"mock/util/jwtUtil"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -71,7 +72,7 @@ func (s *UserService) CreateTenant(name string) error {
 	}
 
 	tenants = append(tenants, data.Tenant{
-		ID:   uuid.NewV4().String(),
+		ID:   strconv.Itoa(len(tenants) + 1),
 		Name: name,
 	})
 
@@ -263,4 +264,31 @@ func (s *UserService) CheckAppToken(authorization string) bool {
 		return false
 	}
 	return jwtUtil.CheckValid(authSlice[1], "openAPI")
+}
+
+// 租户id转自增
+func (s *UserService) ChangeTenantIds() error {
+
+	tenants, err := s.GetTenants()
+	if err != nil {
+		return err
+	}
+
+	var newTenants []data.Tenant
+	for k, tenant := range tenants {
+		match, err := regexp.MatchString(`^[1-9]\d*$`, tenant.ID)
+		if err != nil {
+			return err
+		}
+		if !match {
+			tenant.ID = strconv.Itoa(k + 1)
+		}
+		newTenants = append(newTenants, tenant)
+	}
+
+	bt, err := json.Marshal(newTenants)
+	if err != nil {
+		return err
+	}
+	return db.Update(db.CUBA, "tenant", string(bt))
 }
