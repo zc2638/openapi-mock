@@ -16,6 +16,9 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
 			tenantList += `<tr align="center">
                 <td>` + t.ID + `</td>
                 <td>` + t.Name + `</td>
+				<td>
+                    <button onclick="tenantExchange('` + t.ID + `')">换位</button>
+                </td>
             </tr>`
 		}
 	}
@@ -67,7 +70,20 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
 <div class="content">
     <div class="pop"
          style="width: 100%; height: 100%; position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.3);display: none;z-index: 100;"></div>
-    <div class="tenantBox" style="position: absolute; left:50%; top:50%; display: none;z-index: 999;">
+    <div class="tenantExchangeBox" style="position: fixed; left:50%; top:50%; display: none;z-index: 999;">
+        <div class="item"
+             style="width:550px; height:100px; position:absolute;left:-250px; top:-250px; border:2px solid; background: #fff;padding-top: 40px;">
+            <label style="margin: 0 20px;display: block;">
+                <span>租户id：</span>
+                <input name="tenantExchangeId" value="" placeholder="请输入需要更换的租户id" style="height: 30px; width: 300px;"/>
+            </label><br/>
+            <label style="margin: 0 20px;display: block">
+                <input type="submit" name="submit" onclick="tenantExchangeSubmit()"
+                       style="width: 80px;height: 20px; background: #ccc; border-radius: 5px;" />
+            </label>
+        </div>
+    </div>
+	<div class="tenantBox" style="position: fixed; left:50%; top:50%; display: none;z-index: 999;">
         <div class="item"
              style="width:550px; height:100px; position:absolute;left:-250px; top:-250px; border:2px solid; background: #fff;padding-top: 40px;">
             <label style="margin: 0 20px;display: block;">
@@ -80,7 +96,7 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
             </label>
         </div>
     </div>
-    <div class="userBox" style="position: absolute; left:50%; top:50%; display: none;z-index: 999;">
+    <div class="userBox" style="position: fixed; left:50%; top:50%; display: none;z-index: 999;">
         <div class="item"
              style="width:550px; height:260px; position:absolute;left:-250px; top:-250px; border:2px solid; background: #fff;padding-top: 40px;">
             <label style="margin: 0 20px;display: block;">
@@ -101,7 +117,7 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
             </label>
         </div>
     </div>
-    <div class="relateBox" style="position: absolute; left:50%; top:50%; display: none;z-index: 999;">
+    <div class="relateBox" style="position: fixed; left:50%; top:50%; display: none;z-index: 999;">
         <div class="item"
              style="width:550px; height:200px; position:absolute;left:-250px; top:-250px; border:2px solid; background: #fff;padding-top: 40px;">
             <label style="margin: 0 20px;display: block;">
@@ -132,6 +148,7 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
             <tr align="center">
                 <th>id</th>
                 <th>名称</th>
+                <th>操作</th>
             </tr>
             </thead>
 
@@ -165,6 +182,7 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
 </div>
 <script>
     let userId = null;
+    let tenantId = null;
 	let host = "http://" + window.location.host;
     function relate(uid) {
         userId = uid;
@@ -259,6 +277,32 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
             console.log(result);
             document.getElementsByClassName("pop")[0].style.display = "none";
             document.getElementsByClassName("userBox")[0].style.display = "none";
+            alert(result.message || "请求异常");
+            window.location.reload();
+        })
+    }
+
+	function tenantExchange(tid) {
+        tenantId = tid;
+        document.getElementsByClassName("pop")[0].style.display = "block";
+        document.getElementsByClassName("tenantExchangeBox")[0].style.display = "block";
+    }
+
+    function tenantExchangeSubmit() {
+        const tenantExchangeId = document.getElementsByName("tenantExchangeId")[0].value;
+        if (tenantExchangeId === "") {
+            document.getElementsByClassName("pop")[0].style.display = "none";
+            document.getElementsByClassName("tenantExchangeBox")[0].style.display = "none";
+            alert('租户id不能为空');
+            return
+        }
+
+        const data = "id=" + tenantId + "&exchangeId=" + tenantExchangeId;
+        createRequest(host + "/tenant/exchange", "POST", data, function (res) {
+            let result = JSON.parse(res);
+            console.log(result);
+            document.getElementsByClassName("pop")[0].style.display = "none";
+            document.getElementsByClassName("tenantExchangeBox")[0].style.display = "none";
             alert(result.message || "请求异常");
             window.location.reload();
         })

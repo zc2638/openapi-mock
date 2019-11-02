@@ -1,5 +1,7 @@
 package data
 
+import "strconv"
+
 /**
  * Created by zc on 2019-10-24.
  */
@@ -44,6 +46,17 @@ type Tenant struct {
 	Name string `json:"name"`
 }
 
+type TenantSet []Tenant
+
+func (s TenantSet) Len() int           { return len(s) }
+func (s TenantSet) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s TenantSet) Less(i, j int) bool {
+
+	ii, _ := strconv.Atoi(s[i].ID)
+	ij, _ := strconv.Atoi(s[j].ID)
+	return ii < ij
+}
+
 type TenantData struct {
 	Tenant
 	UserList []TenantUserData `json:"userList"`
@@ -52,4 +65,15 @@ type TenantData struct {
 type TenantUserData struct {
 	User
 	UserType int `json:"userType"`
+}
+
+type TenantUserDataSet []TenantUserData
+
+func (s TenantUserDataSet) Len() int           { return len(s) }
+func (s TenantUserDataSet) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s TenantUserDataSet) Less(i, j int) bool {
+
+	ii, _ := strconv.Atoi(s[i].ID)
+	ij, _ := strconv.Atoi(s[j].ID)
+	return ii < ij
 }

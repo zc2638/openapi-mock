@@ -63,6 +63,27 @@ func (t *UserController) ResetTenantIds(c *gin.Context) {
 	t.Succ(c, "操作成功")
 }
 
+// 随意更换租户id
+func (t *UserController) ExchangeTenant(c *gin.Context) {
+
+	id := c.PostForm("id")
+	exchangeId := c.PostForm("exchangeId")
+	vdr := validator.NewVdr()
+	vdr.MakeValue(id, `reg=^[1-9]\d*$`, "msg=id错误")
+	vdr.MakeValue(exchangeId, `reg=^[1-9]\d*$`, "msg=exchangeId错误")
+	if err := vdr.Check(); err != nil {
+		t.ErrData(c, err)
+		return
+	}
+
+	userService := service.UserService{}
+	if err := userService.ExchangeTenant(id, exchangeId); err != nil {
+		t.ErrData(c, err)
+		return
+	}
+	t.Succ(c, "操作成功")
+}
+
 // 新增用户
 func (t *UserController) CreateUser(c *gin.Context) {
 

@@ -3,12 +3,12 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"mock/data"
 	"mock/util/db"
 	"mock/util/jwtUtil"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -57,6 +57,24 @@ func (s *UserService) GetTenants() ([]data.Tenant, error) {
 	return tenants, err
 }
 
+// 刷新用户信息
+func (s *UserService) UpdateUsers(users []data.UserData) error {
+	bu, err := json.Marshal(users)
+	if err != nil {
+		return err
+	}
+	return db.Update(db.UUC, "user", string(bu))
+}
+
+// 刷新租户信息
+func (s *UserService) UpdateTenants(tenants []data.Tenant) error {
+	bt, err := json.Marshal(tenants)
+	if err != nil {
+		return err
+	}
+	return db.Update(db.CUBA, "tenant", string(bt))
+}
+
 // 添加租户
 func (s *UserService) CreateTenant(name string) error {
 
@@ -75,12 +93,7 @@ func (s *UserService) CreateTenant(name string) error {
 		ID:   strconv.Itoa(len(tenants) + 1),
 		Name: name,
 	})
-
-	bt, err := json.Marshal(tenants)
-	if err != nil {
-		return err
-	}
-	return db.Update(db.CUBA, "tenant", string(bt))
+	return s.UpdateTenants(tenants)
 }
 
 // 添加用户
@@ -112,13 +125,7 @@ func (s *UserService) CreateUser(username, nickname, phone string) error {
 			Gender:   2,
 		},
 	})
-
-	bu, err := json.Marshal(users)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(bu))
-	return db.Update(db.UUC, "user", string(bu))
+	return s.UpdateUsers(users)
 }
 
 // 用户关联租户
@@ -172,12 +179,7 @@ func (s *UserService) UserRelateTenant(userId, tenantId, userType string) error 
 		}
 		newUsers = append(newUsers, user)
 	}
-
-	bu, err := json.Marshal(newUsers)
-	if err != nil {
-		return err
-	}
-	return db.Update(db.UUC, "user", string(bu))
+	return s.UpdateUsers(newUsers)
 }
 
 // 生成用户token
@@ -286,9 +288,83 @@ func (s *UserService) ChangeTenantIds() error {
 		newTenants = append(newTenants, tenant)
 	}
 
-	bt, err := json.Marshal(newTenants)
+	users, err := s.GetUsers()
 	if err != nil {
 		return err
 	}
-	return db.Update(db.CUBA, "tenant", string(bt))
+
+	var newUsers []data.UserData
+	for _, user := range users {
+		if user.TenantList == nil {
+			continue
+		}
+
+		var tenantList []data.UserTenantData
+		for _, t := range user.TenantList {
+			for _, nt := range newTenants {
+				if t.Name == nt.Name {
+					t.ID = nt.ID
+					tenantList = append(tenantList, t)
+					break
+				}
+			}
+		}
+		user.TenantList = tenantList
+		newUsers = append(newUsers, user)
+	}
+
+	if err := s.UpdateTenants(newTenants); err != nil {
+		return err
+	}
+	return s.UpdateUsers(newUsers)
+}
+
+// 租户id自由换位
+func (s *UserService) ExchangeTenant(id, exchangeId string) error {
+
+	tenants, err := s.GetTenants()
+	if err != nil {
+		return err
+	}
+
+	var newTenants data.TenantSet
+	for _, tenant := range tenants {
+		if tenant.ID == id {
+			tenant.ID = exchangeId
+		} else if tenant.ID == exchangeId {
+			tenant.ID = id
+		}
+		newTenants = append(newTenants, tenant)
+	}
+
+	sort.Sort(newTenants)
+	if err := s.UpdateTenants(newTenants); err != nil {
+		return err
+	}
+
+	users, err := s.GetUsers()
+	if err != nil {
+		return err
+	}
+
+	var newUsers []data.UserData
+	for _, user := range users {
+		if user.TenantList == nil {
+			continue
+		}
+
+		var tenantList []data.UserTenantData
+		for _, t := range user.TenantList {
+			for _, nt := range newTenants {
+				if t.Name == nt.Name {
+					t.ID = nt.ID
+					tenantList = append(tenantList, t)
+					break
+				}
+			}
+		}
+		user.TenantList = tenantList
+		newUsers = append(newUsers, user)
+	}
+	return s.UpdateUsers(newUsers)
 }
