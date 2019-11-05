@@ -57,6 +57,28 @@ func (s *UserService) GetTenants() ([]data.Tenant, error) {
 	return tenants, err
 }
 
+// 根据用户名获取用户信息
+func (s *UserService) GetUserByUserName(username, password string) (data.UserData, error) {
+
+	var user data.UserData
+
+	users, err := s.GetUsers()
+	if err != nil {
+		return user, err
+	}
+	for _, u := range users {
+		if u.Phone == username {
+			user = u
+			break
+		}
+	}
+
+	if user.ID == "" {
+		return user, UserNotExist
+	}
+	return user, nil
+}
+
 // 刷新用户信息
 func (s *UserService) UpdateUsers(users []data.UserData) error {
 	bu, err := json.Marshal(users)
@@ -266,6 +288,43 @@ func (s *UserService) CheckAppToken(authorization string) bool {
 		return false
 	}
 	return jwtUtil.CheckValid(authSlice[1], "openAPI")
+}
+
+// 解析用户token
+func (s *UserService) ParseToken(authorization string) (data.UserData, error) {
+
+	var userData data.UserData
+
+	authSlice := strings.Split(authorization, "Bearer ")
+	if len(authSlice) != 2 {
+		return userData, AuthError
+	}
+
+	jwtResult, err := jwtUtil.ParseInfo(authSlice[1], "")
+	if err != nil {
+		return userData, TokenError
+	}
+
+	userId, ok := jwtResult["info"].(map[string]interface{})["id"]
+	if !ok {
+		return userData, TokenError
+	}
+
+	users, err := s.GetUsers()
+	if err != nil {
+		return userData, err
+	}
+
+	for _, u := range users {
+		if u.ID == userId {
+			userData = u
+			break
+		}
+	}
+	if userData.ID == "" {
+		return userData, UserNotExist
+	}
+	return userData, nil
 }
 
 // 租户id转自增

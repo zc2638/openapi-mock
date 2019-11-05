@@ -373,3 +373,71 @@ func (t *UserController) ChangeUserRole(c *gin.Context) {
 		"message": "操作成功",
 	})
 }
+
+// CUBA用户名密码登陆接口
+func (t *UserController) LoginUserName(c *gin.Context) {
+
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+	vdr := validator.NewVdr()
+	vdr.MakeValue(username, "required", "msg=请输入用户名")
+	vdr.MakeValue(password, "required", "msg=请输入密码")
+	if err := vdr.Check(); err != nil {
+		t.ErrData(c, err)
+		return
+	}
+
+	userService := service.UserService{}
+	user, err := userService.GetUserByUserName(username, password)
+	if err != nil {
+		t.ErrData(c, err)
+		return
+	}
+
+	userToken, err := userService.CreateUserToken(user.User)
+	if err != nil {
+		t.ErrData(c, TokenError)
+		return
+	}
+
+	t.Data(c, gin.H{
+		"ucUserId": user.ID,
+		"username": user.UserName,
+		"ucUserToken": userToken.AccessToken,
+		"nickname": user.NickName,
+		"phone": user.Phone,
+	})
+}
+
+// UUC单点登录
+func (t *UserController) Uuc(c *gin.Context) {
+	authorization := c.GetHeader("Authorization")
+	target := c.PostForm("target")
+	targetUrl := c.PostForm("targetUrl")
+	gateWayUrl := c.PostForm("gateWayUrl")
+	state := c.PostForm("state")
+
+	vdr := validator.NewVdr()
+	vdr.MakeValue(authorization, "required", "msg=身份认证失败")
+	vdr.MakeValue(target, "required", "msg=应用认证失败")
+	vdr.MakeValue(targetUrl, "required", "msg=跳转地址不存在")
+	vdr.MakeValue(gateWayUrl, "required", "msg=站点gateWay地址不存在")
+	if err := vdr.Check(); err != nil {
+		t.ErrData(c, err)
+		return
+	}
+
+	userService := service.UserService{}
+	userData, err := userService.ParseToken(authorization)
+	if err != nil {
+		t.ErrData(c, err)
+		return
+	}
+
+	t.Data(c, gin.H{
+		"authCode": userData.Code, // 授权码
+		"target": "OpenAPI",
+		"targetUrl": targetUrl,
+		"redirectUrl": gateWayUrl + "?code=" + userData.Code + "&targetUrl=" + targetUrl + "&state=" + state,
+	})
+}

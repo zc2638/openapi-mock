@@ -35,6 +35,7 @@ func (t *BaseController) Err(c *gin.Context, err error) {
 }
 
 func (t *BaseController) ErrData(c *gin.Context, err error) {
+	fmt.Println("Error：", err.Error())
 	t.Api(c, http.StatusOK, gin.H{
 		"status": "error",
 		"message": err.Error(),
