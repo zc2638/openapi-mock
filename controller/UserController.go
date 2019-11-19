@@ -401,11 +401,15 @@ func (t *UserController) LoginUserName(c *gin.Context) {
 	}
 
 	t.Data(c, gin.H{
-		"ucUserId": user.ID,
-		"username": user.UserName,
-		"ucUserToken": userToken.AccessToken,
-		"nickname": user.NickName,
-		"phone": user.Phone,
+		"data": gin.H{
+			"ucUserId": user.ID,
+			"username": user.UserName,
+			"ucUserToken": userToken.AccessToken,
+			"nickname": user.NickName,
+			"phone": user.Phone,
+		},
+		"code": 0,
+		"msg": "",
 	})
 }
 

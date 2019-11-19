@@ -3,6 +3,9 @@ package route
 import (
 	"github.com/gin-gonic/gin"
 	"mock/controller"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 /**
@@ -20,12 +23,12 @@ func routeApi(g *gin.Engine) {
 	g.POST("/tenant/exchange", userController.ExchangeTenant)
 	g.POST("/user/relate", userController.UserRelateTenant)
 
-	g.POST("/service/user/v1/get-token", userController.GetToken)              // (uuc)code换用户token
-	g.POST("/service/api/v1/userinfo", userController.GetUserInfo)             // (uuc)用户token换用户信息
-	g.POST("/service/api/v1/userinfo/tenement", userController.GetUserInfoAll) // (uuc)用户token换用户信息
-	g.POST("/service/oauth/token", userController.Token)                       // (uuc)token处理
-	g.POST("/cuba/getAllUser", userController.GetTenantAllUser)                // 获取租户下所有用户信息
-	g.POST("/cuba/changeUserRole", userController.ChangeUserRole)              // 修改用户在OpenAPI的角色名称
+	g.POST("/service/user/v1/get-token", userController.GetToken)             // (uuc)code换用户token
+	g.POST("/service/api/v1/userinfo", userController.GetUserInfo)            // (uuc)用户token换用户信息
+	g.GET("/service/api/v1/userinfo/tenement", userController.GetUserInfoAll) // (uuc)用户token换用户信息
+	g.POST("/service/oauth/token", userController.Token)                      // (uuc)token处理
+	g.POST("/cuba/getAllUser", userController.GetTenantAllUser)               // 获取租户下所有用户信息
+	g.POST("/cuba/changeUserRole", userController.ChangeUserRole)             // 修改用户在OpenAPI的角色名称
 	g.POST("/cuba/service/uuc_center/login", userController.LoginUserName)
 	g.POST("/service/sso/v1/uuc/jump/uuc", userController.Uuc)
 
@@ -37,4 +40,14 @@ func routeApi(g *gin.Engine) {
 
 	templateController := new(controller.TemplateController)
 	g.GET("/mock/list", templateController.UserList)
+	
+	
+	g.GET("/01", func(c *gin.Context) {
+		c.String(http.StatusOK, "Hello 01!")
+	})
+
+	g.GET("/ts", func(c *gin.Context) {
+		ts := time.Now().Unix()
+		c.String(http.StatusOK, strconv.Itoa(int(ts)))
+	})
 }

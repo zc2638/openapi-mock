@@ -17,7 +17,7 @@ type User struct {
 
 type UserData struct {
 	User
-	TenantList []UserTenantData `json:"tenantList"` // 租户列表
+	TenantList []UserTenantData `json:"tenementInfoList"` // 租户列表
 }
 
 type UserTenantData struct {
