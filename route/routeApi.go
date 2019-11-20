@@ -37,17 +37,23 @@ func routeApi(g *gin.Engine) {
 	g.POST("/store/force", storeController.Force)                   // (store)强制下架
 	g.POST("/store/auditStatus", storeController.AuditStatus)       // (store)修改审核状态（主动）
 	g.POST("/store/createContract", storeController.CreateContract) // (store)创建服务合同（主动）
-
-	templateController := new(controller.TemplateController)
-	g.GET("/mock/list", templateController.UserList)
-	
 	
 	g.GET("/01", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello 01!")
 	})
 
 	g.GET("/ts", func(c *gin.Context) {
-		ts := time.Now().Unix()
+		ts := time.Now().UnixNano() / 1e3
 		c.String(http.StatusOK, strconv.Itoa(int(ts)))
 	})
+
+	mock := g.Group("/mock")
+	{
+		templateController := new(controller.TemplateController)
+		mock.GET("/user/list", templateController.UserList)
+
+		mockController := new(controller.MockController)
+		mock.Any("/any", mockController.Any)
+		mock.POST("/upload", mockController.Upload)
+	}
 }

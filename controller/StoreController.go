@@ -15,14 +15,18 @@ type StoreController struct{ BaseController }
 // 申请上架
 func (t *StoreController) Apply(c *gin.Context) {
 
+	tenantId := c.PostForm("tenantId")
 	tenantName := c.PostForm("tenantName")
+	userId := c.PostForm("userId")
 	userName := c.PostForm("userName")
 	apiId := c.PostForm("apiId")
 	apiName := c.PostForm("apiName")
 	apiDesc := c.PostForm("apiDesc")
 
 	validate := validator.NewVdr().
+		MakeValue(tenantId, "required", "msg=缺少租户标识").
 		MakeValue(tenantName, "required", "msg=缺少租户名称").
+		MakeValue(userId, "required", "msg=缺少用户标识").
 		MakeValue(userName, "required", "msg=缺少用户名称").
 		MakeValue(apiId, "required", "msg=缺少api id参数").
 		MakeValue(apiName, "required", "msg=缺少api名称").
@@ -34,7 +38,9 @@ func (t *StoreController) Apply(c *gin.Context) {
 
 	storeService := service.StoreService{}
 	if err := storeService.Apply(data.ApiData{
+		TenantId:   tenantId,
 		TenantName: tenantName,
+		UserId:     userId,
 		UserName:   userName,
 		ApiId:      apiId,
 		ApiName:    apiName,

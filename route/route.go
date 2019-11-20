@@ -19,6 +19,9 @@ func Start() {
 	// 注册全局中间件
 	g.Use(middleware.Cors())
 
+	// 设置静态路由
+	g.Static("/uploads", "uploads")
+
 	// 注册路由
 	routeApi(g)
 
