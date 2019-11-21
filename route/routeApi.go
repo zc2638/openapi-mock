@@ -22,6 +22,7 @@ func routeApi(g *gin.Engine) {
 	g.POST("/tenant/reset", userController.ResetTenantIds)
 	g.POST("/tenant/exchange", userController.ExchangeTenant)
 	g.POST("/user/relate", userController.UserRelateTenant)
+	g.POST("/user/mobileRest", userController.UserMobileRest)
 
 	g.POST("/service/user/v1/get-token", userController.GetToken)             // (uuc)code换用户token
 	g.POST("/service/api/v1/userinfo", userController.GetUserInfo)            // (uuc)用户token换用户信息

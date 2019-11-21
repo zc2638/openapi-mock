@@ -133,6 +133,16 @@ func (t *UserController) UserRelateTenant(c *gin.Context) {
 	t.Succ(c, "操作成功")
 }
 
+// 用户手机号重置
+func (t *UserController) UserMobileRest(c *gin.Context) {
+	userService := service.UserService{}
+	if err := userService.RestUserMobile(); err != nil {
+		t.ErrData(c, err)
+		return
+	}
+	t.Succ(c, "操作成功")
+}
+
 // code换用户token
 func (t *UserController) GetToken(c *gin.Context) {
 

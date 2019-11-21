@@ -427,3 +427,19 @@ func (s *UserService) ExchangeTenant(id, exchangeId string) error {
 	}
 	return s.UpdateUsers(newUsers)
 }
+
+// 用户手机号重置
+func (s *UserService) RestUserMobile() error {
+
+	users, err := s.GetUsers()
+	if err != nil {
+		return err
+	}
+
+	var newUsers []data.UserData
+	for _, user := range users {
+		user.Phone = "138" + user.Code
+		newUsers = append(newUsers, user)
+	}
+	return s.UpdateUsers(newUsers)
+}
