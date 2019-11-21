@@ -6,6 +6,7 @@ import (
 	"mock/data"
 	"mock/service"
 	"mock/util/jwtUtil"
+	"net/url"
 	"strings"
 )
 
@@ -377,26 +378,34 @@ func (t *UserController) ChangeUserRole(c *gin.Context) {
 // CUBA用户名密码登陆接口
 func (t *UserController) LoginUserName(c *gin.Context) {
 
+	result := gin.H{
+		"code": 400,
+		"msg": "",
+	}
+
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 	vdr := validator.NewVdr()
 	vdr.MakeValue(username, "required", "msg=请输入用户名")
 	vdr.MakeValue(password, "required", "msg=请输入密码")
 	if err := vdr.Check(); err != nil {
-		t.ErrData(c, err)
+		result["msg"] = err.Error()
+		t.Data(c, result)
 		return
 	}
 
 	userService := service.UserService{}
 	user, err := userService.GetUserByUserName(username, password)
 	if err != nil {
-		t.ErrData(c, err)
+		result["msg"] = err.Error()
+		t.Data(c, result)
 		return
 	}
 
 	userToken, err := userService.CreateUserToken(user.User)
 	if err != nil {
-		t.ErrData(c, TokenError)
+		result["msg"] = TokenError.Error()
+		t.Data(c, result)
 		return
 	}
 
@@ -442,6 +451,6 @@ func (t *UserController) Uuc(c *gin.Context) {
 		"authCode": userData.Code, // 授权码
 		"target": "OpenAPI",
 		"targetUrl": targetUrl,
-		"redirectUrl": gateWayUrl + "?code=" + userData.Code + "&targetUrl=" + targetUrl + "&state=" + state,
+		"redirectUrl": gateWayUrl + "?code=" + userData.Code + "&targetUrl=" + url.PathEscape(targetUrl) + "&state=" + state,
 	})
 }
