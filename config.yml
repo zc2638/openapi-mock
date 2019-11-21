@@ -1,0 +1,3 @@
+name: "OpenAPI-mock"
+host: "openapi-mock.shanghai.cosmoplat.com"
+port: "8080"

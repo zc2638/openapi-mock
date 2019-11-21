@@ -13,7 +13,9 @@ import (
  */
 func routeApi(g *gin.Engine) {
 
-	g.GET("/", new(controller.HomeController).Index)
+	homeController := new(controller.HomeController)
+	g.GET("/", homeController.Index)
+	g.GET("/config", homeController.Config)
 
 	userController := new(controller.UserController)
 	g.GET("/user/list", userController.GetList)
