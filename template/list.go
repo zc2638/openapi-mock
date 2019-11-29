@@ -136,9 +136,9 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
     </div>
     <div>
         <input type="button" name="submit" onclick="tenant()" value="创建租户"
-               style="width: 80px;height: 20px; background: #ccc; border-radius: 5px;color: blue;" />
+               style="width: 80px;height: 20px; background: #ccc; border-radius: 5px;color: blue;cursor: pointer;" />
         <input type="button" name="submit" onclick="user()" value="创建用户"
-               style="width: 80px;height: 20px; background: #ccc; border-radius: 5px;color: blue;" />
+               style="width: 80px;height: 20px; background: #ccc; border-radius: 5px;color: blue;cursor: pointer;" />
     </div>
     <div class="tenant">
         <table border="1" width="500" align="center" cellspacing="0" cellpadding="6">

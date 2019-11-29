@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "mock/config"
+	_ "mock/listener"
 	"mock/route"
 )
 

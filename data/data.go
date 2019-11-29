@@ -5,6 +5,11 @@ import "strconv"
 /**
  * Created by zc on 2019-10-24.
  */
+type Result struct {
+	Status string `json:"status"`
+	Message string `json:"message"`
+}
+
 type User struct {
 	ID       string `json:"id"`       // 用户id
 	UserName string `json:"username"` // 用户名称

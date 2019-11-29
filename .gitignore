@@ -16,3 +16,4 @@ go.sum
 mock
 db
 uploads
+logs

@@ -5,7 +5,7 @@ import (
 	"github.com/zc2638/go-validator"
 	"mock/data"
 	"mock/service"
-	"mock/util/jwtUtil"
+	"mock/lib/jwtUtil"
 	"net/url"
 	"strings"
 )

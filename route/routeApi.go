@@ -31,15 +31,8 @@ func routeApi(g *gin.Engine) {
 	g.GET("/service/api/v1/userinfo/tenement", userController.GetUserInfoAll) // (uuc)用户token换用户信息
 	g.POST("/service/oauth/token", userController.Token)                      // (uuc)token处理
 	g.POST("/cuba/getAllUser", userController.GetTenantAllUser)               // 获取租户下所有用户信息
-	g.POST("/cuba/changeUserRole", userController.ChangeUserRole)             // 修改用户在OpenAPI的角色名称
 	g.POST("/cuba/service/uuc_center/login", userController.LoginUserName)
 	g.POST("/service/sso/v1/uuc/jump/uuc", userController.Uuc)
-
-	storeController := new(controller.StoreController)
-	g.POST("/store/apply", storeController.Apply)                   // (store)申请上架
-	g.POST("/store/force", storeController.Force)                   // (store)强制下架
-	g.POST("/store/auditStatus", storeController.AuditStatus)       // (store)修改审核状态（主动）
-	g.POST("/store/createContract", storeController.CreateContract) // (store)创建服务合同（主动）
 	
 	g.GET("/01", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello 01!")
@@ -54,9 +47,15 @@ func routeApi(g *gin.Engine) {
 	{
 		templateController := new(controller.TemplateController)
 		mock.GET("/user/list", templateController.UserList)
+		mock.GET("/api/list", templateController.ApiList)
+		mock.GET("/contract", templateController.Contract)
 
 		mockController := new(controller.MockController)
 		mock.Any("/any", mockController.Any)
 		mock.POST("/upload", mockController.Upload)
+
+		storeController := new(controller.StoreController)
+		mock.POST("/api/audit", storeController.AuditStatus)
+		mock.POST("/contract", storeController.CreateContract)
 	}
 }

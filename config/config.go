@@ -10,9 +10,14 @@ import (
  */
 // config 配置项
 type configure struct {
-	Name string `yaml:"name"`
+	Name    string  `yaml:"name"`
+	Host    string  `yaml:"host"`
+	Port    string  `yaml:"port"`
+	OpenApi OpenApi `yaml:"openApi"`
+}
+
+type OpenApi struct {
 	Host string `yaml:"host"`
-	Port string `yaml:"port"`
 }
 
 var Cfg = &configure{}

@@ -30,3 +30,36 @@ func (t *TemplateController) UserList(c *gin.Context) {
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, template.UserListTemplate(tenants, users))
 }
+
+func (t *TemplateController) ApiList(c *gin.Context) {
+
+	storeService := service.StoreService{}
+	set, err := storeService.GetApiSet()
+	if err != nil {
+		c.String(http.StatusOK, template.Error(err))
+		return
+	}
+
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	c.String(http.StatusOK, template.ApiListTemplate(set))
+}
+
+func (t *TemplateController) Contract(c *gin.Context) {
+
+	userService := service.UserService{}
+	users, err := userService.GetUsers()
+	if err != nil {
+		c.String(http.StatusOK, template.Error(err))
+		return
+	}
+
+	storeService := service.StoreService{}
+	set, err := storeService.GetApiSet()
+	if err != nil {
+		c.String(http.StatusOK, template.Error(err))
+		return
+	}
+
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	c.String(http.StatusOK, template.ContractTemplate(users, set))
+}

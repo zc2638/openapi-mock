@@ -1,0 +1,72 @@
+<!doctype html>
+<html xmlns=http://www.w3.org/1999/xhtml>
+<meta charset=utf-8>
+<title>OpenAPI-mock Store</title>
+<body>
+<div class="content">
+    <div class="api">
+        <table border="1" width="100%" align="center" cellspacing="0" cellpadding="6">
+            <caption>API列表</caption>
+
+            <thead>
+            <tr align="center">
+                <th>id</th>
+                <th>名称</th>
+                <th>租户名</th>
+                <th>用户名</th>
+                <th>描述</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr align="center">
+                <td>1</td>
+                <td>api名称</td>
+                <td>上海道云网络科技</td>
+                <td>张三</td>
+                <td>api描述</td>
+                <td>待审核</td>
+                <td>
+                    <button onclick="auditSubmit('1', '0')">同意</button>
+                    <button onclick="auditSubmit('1', '0')">拒绝</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    let host = "http://" + window.location.host;
+    function auditSubmit(apiId, status) {
+        const data = "apiId=" + apiId + "&status=" + status;
+        createRequest(host + "/mock/api/audit", "POST", data, function (res) {
+            let result = JSON.parse(res);
+            console.log(result);
+            alert(result.message || "请求异常");
+            window.location.reload();
+        })
+    }
+
+    function createRequest(host, method, data, callback) {
+        let xhr = window.XMLHttpRequest ? new window.XMLHttpRequest() :
+            new window.ActiveXObject('Microsoft.XMLHTTP');
+        xhr.open(method || "GET", host, false);
+        xhr.onreadystatechange = function () {
+            //判断请求状态是否是已经完成
+            if (xhr.readyState === 4) {
+                //判断服务器是否返回成功200,304
+                if (xhr.status >= 200 && xhr.status <= 300 || xhr.status === 304) {
+                    //接收xhr的数据
+                    callback(xhr.responseText);
+                }
+            }
+        };
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        // xhr.setRequestHeader("Canhe-Control", "no-cache");//阻止浏览器读取缓存
+        xhr.send(data);
+    }
+</script>
+</body>
+</html>

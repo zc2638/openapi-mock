@@ -21,4 +21,6 @@ const (
 	UserNotExist = RequestError("用户不存在")
 	UserRelateRepeat = RequestError("用户租户已关联")
 	PhoneRepeat = RequestError("联系方式已存在")
+	APIExist = RequestError("api发起申请或已上架")
+	APINotExist = RequestError("api不存在")
 )
