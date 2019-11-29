@@ -15,5 +15,6 @@
 go.sum
 mock
 db
+!lib/db
 uploads
 logs
