@@ -42,4 +42,8 @@ func init() {
 	if err := yaml.Unmarshal(b, Cfg); err != nil {
 		panic(err)
 	}
+
+	if Cfg.Port == "" {
+		Cfg.Port = ServerPort
+	}
 }

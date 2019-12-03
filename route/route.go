@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/zctod/go-tool/common/util_server"
+	"mock/config"
 	"mock/middleware"
 	"net/http"
 	"time"
@@ -32,7 +33,7 @@ func Start() {
 func startServer(g *gin.Engine) {
 
 	server := &http.Server{
-		Addr:           ":9090",
+		Addr:           ":" + config.Cfg.Port,
 		Handler:        g,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
