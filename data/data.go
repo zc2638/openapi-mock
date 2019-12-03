@@ -1,23 +1,29 @@
 package data
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+)
 
 /**
  * Created by zc on 2019-10-24.
  */
 type Result struct {
-	Status string `json:"status"`
+	Status  string `json:"status"`
 	Message string `json:"message"`
 }
 
 type User struct {
-	ID       string `json:"id"`       // 用户id
-	UserName string `json:"username"` // 用户名称
-	NickName string `json:"nickname"` // 用户昵称
-	Phone    string `json:"phone"`    // 联系方式
-	Gender   int    `json:"gender"`   // 性别
-	HeadImg  string `json:"headImg"`  // 头像
-	Code     string `json:"code"`     // 8位校验码
+	ID           string    `json:"id"`           // 用户id
+	UserName     string    `json:"username"`     // 用户名称
+	NickName     string    `json:"nickname"`     // 用户昵称
+	Phone        string    `json:"phone"`        // 联系方式
+	Gender       int       `json:"gender"`       // 性别
+	HeadImg      string    `json:"headImg"`      // 头像
+	Code         string    `json:"code"`         // 8位校验码
+	Token        string    `json:"token"`        // 用户身份token
+	RefreshToken string    `json:"refreshToken"` // 用户身份refresh
+	ExpireAt     time.Time `json:"expireAt"`     // 过期时间
 }
 
 type UserData struct {
@@ -53,8 +59,8 @@ type Tenant struct {
 
 type TenantSet []Tenant
 
-func (s TenantSet) Len() int           { return len(s) }
-func (s TenantSet) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s TenantSet) Len() int      { return len(s) }
+func (s TenantSet) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s TenantSet) Less(i, j int) bool {
 
 	ii, _ := strconv.Atoi(s[i].ID)
@@ -74,8 +80,8 @@ type TenantUserData struct {
 
 type TenantUserDataSet []TenantUserData
 
-func (s TenantUserDataSet) Len() int           { return len(s) }
-func (s TenantUserDataSet) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s TenantUserDataSet) Len() int      { return len(s) }
+func (s TenantUserDataSet) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s TenantUserDataSet) Less(i, j int) bool {
 
 	ii, _ := strconv.Atoi(s[i].ID)

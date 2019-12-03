@@ -32,7 +32,7 @@ func Start() {
 func startServer(g *gin.Engine) {
 
 	server := &http.Server{
-		Addr:           ":8080",
+		Addr:           ":9090",
 		Handler:        g,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

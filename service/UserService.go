@@ -150,6 +150,23 @@ func (s *UserService) CreateUser(username, nickname, phone string) error {
 	return s.UpdateUsers(users)
 }
 
+// 更新用户
+func (s *UserService) UpdateUser(user data.User) error {
+	users, err := s.GetUsers()
+	if err != nil {
+		return err
+	}
+
+	var newUsers []data.UserData
+	for _, u := range users {
+		if u.ID == user.ID {
+			u.User = user
+		}
+		newUsers = append(newUsers, u)
+	}
+	return s.UpdateUsers(newUsers)
+}
+
 // 用户关联租户
 func (s *UserService) UserRelateTenant(userId, tenantId, userType string) error {
 
@@ -211,6 +228,16 @@ func (s *UserService) CreateUserToken(user data.User) (data.UserToken, error) {
 		return data.UserToken{}, errors.New("用户不存在")
 	}
 
+	if ok := jwtUtil.CheckValid(user.Token, ""); ok {
+		return data.UserToken{
+			Scope:        "read write",
+			TokenType:    "bearer",
+			ExpiresIn:    int64(user.ExpireAt.Sub(time.Now()) / 1000 / 1000),
+			AccessToken:  user.Token,
+			RefreshToken: user.RefreshToken,
+		}, nil
+	}
+
 	// 生成用户token
 	expireIn := time.Hour * 2
 	token, err := jwtUtil.Create(map[string]interface{}{
@@ -226,6 +253,13 @@ func (s *UserService) CreateUserToken(user data.User) (data.UserToken, error) {
 	}, "", time.Now().Add(time.Hour * 24).Unix())
 	if err != nil {
 		return data.UserToken{}, err
+	}
+
+	user.Token = token
+	user.RefreshToken = refreshToken
+	user.ExpireAt = time.Now().Add(expireIn)
+	if err := s.UpdateUser(user); err != nil {
+		return data.UserToken{}, errors.New("failed to update user token：" + err.Error())
 	}
 
 	return data.UserToken{

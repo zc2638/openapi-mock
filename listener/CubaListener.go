@@ -13,7 +13,7 @@ func cubaRole() {
 	ch := rabbit.Channel{}
 	set, err := ch.Receive("cuba.role")
 	if err != nil {
-		errorf("fail to register a consume: %s", err)
+		errorf("fail to register a consume(cuba.role): %s", err)
 		return
 	}
 

@@ -10,14 +10,23 @@ import (
  */
 // config 配置项
 type configure struct {
-	Name    string  `yaml:"name"`
-	Host    string  `yaml:"host"`
-	Port    string  `yaml:"port"`
-	OpenApi OpenApi `yaml:"openApi"`
+	Name     string   `yaml:"name"`
+	Host     string   `yaml:"host"`
+	Port     string   `yaml:"port"`
+	OpenApi  OpenApi  `yaml:"openApi"`
+	RabbitMQ RabbitMQ `yaml:"rabbitMQ"`
 }
 
 type OpenApi struct {
 	Host string `yaml:"host"`
+}
+
+type RabbitMQ struct {
+	UserName string `yaml:"username"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Use      bool   `yaml:"use"`
 }
 
 var Cfg = &configure{}

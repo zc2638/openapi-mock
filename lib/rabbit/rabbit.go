@@ -3,8 +3,10 @@ package rabbit
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/streadway/amqp"
 	"log"
+	"mock/config"
 )
 
 /**
@@ -13,10 +15,26 @@ import (
 var conn *amqp.Connection
 
 func init() {
+
+	rabbitConfig := config.Cfg.RabbitMQ
+	if !rabbitConfig.Use {
+		fmt.Println("RabbitMQ 设置不启用")
+		return
+	}
+	host := "localhost"
+	if rabbitConfig.Host != "" {
+		host = rabbitConfig.Host
+	}
+	port := "5672"
+	if rabbitConfig.Port != "" {
+		port = rabbitConfig.Port
+	}
+
 	var err error
-	conn, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
+	url := "amqp://" + rabbitConfig.UserName + ":" + rabbitConfig.Password + "@" + host + ":" + port + "/"
+	conn, err = amqp.Dial(url)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("RabbitMQ 连接失败：", err)
 	}
 }
 
@@ -36,6 +54,9 @@ func (c *Channel) newProduce(name string) error {
 func (c *Channel) newConsume(name string) error {
 	var err error
 	if c.consume == nil {
+		if conn == nil {
+			return errors.New("rabbitMQ has no connection available")
+		}
 		c.consume = make(map[string]*amqp.Channel)
 		c.consume[name], err = conn.Channel()
 	}
@@ -101,7 +122,7 @@ func (c *Channel) Send(exchange, queue string, data interface{}) error {
 		false,    // immediate
 		amqp.Publishing{
 			ContentType: "application/json",
-			Body: body,
+			Body:        body,
 		});
 	if err != nil {
 		return errors.New("failed to publish a message")

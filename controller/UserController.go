@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zc2638/go-validator"
 	"mock/data"
-	"mock/service"
 	"mock/lib/jwtUtil"
+	"mock/service"
 	"net/url"
 	"strings"
 )
@@ -196,26 +196,26 @@ func (t *UserController) GetUserInfo(c *gin.Context) {
 	authorization := c.GetHeader("Authorization")
 	authSlice := strings.Split(authorization, "Bearer ")
 	if len(authSlice) != 2 {
-		t.Err(c, AuthError)
+		t.ErrData(c, AuthError)
 		return
 	}
 
 	jwtResult, err := jwtUtil.ParseInfo(authSlice[1], "")
 	if err != nil {
-		t.Err(c, TokenError)
+		t.ErrData(c, TokenError)
 		return
 	}
 
 	userId, ok := jwtResult["info"].(map[string]interface{})["id"]
 	if !ok {
-		t.Err(c, TokenError)
+		t.ErrData(c, TokenError)
 		return
 	}
 
 	userService := new(service.UserService)
 	users, err := userService.GetUsers()
 	if err != nil {
-		t.Err(c, err)
+		t.ErrData(c, err)
 		return
 	}
 
@@ -228,7 +228,7 @@ func (t *UserController) GetUserInfo(c *gin.Context) {
 	}
 
 	if user.ID == "" {
-		t.Err(c, TokenError)
+		t.ErrData(c, TokenError)
 		return
 	}
 	t.Data(c, user)

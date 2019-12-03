@@ -16,7 +16,7 @@ func storeApply() {
 	ch := rabbit.Channel{}
 	set, err := ch.Receive("store.apply")
 	if err != nil {
-		errorf("fail to register a consume: %s", err)
+		errorf("fail to register a consume(store.apply): %s", err)
 		return
 	}
 
@@ -49,7 +49,7 @@ func storeForce() {
 	ch := rabbit.Channel{}
 	set, err := ch.Receive("store.force")
 	if err != nil {
-		errorf("fail to register a consume: %s", err)
+		errorf("fail to register a consume(store.force): %s", err)
 		return
 	}
 
