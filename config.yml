@@ -4,8 +4,8 @@ port: "8080"
 openApi:
   host: ""
 rabbitMQ:
-  host: "rabbitmq.shanghai.cosmoplat.com"
-  port: "80"
-  username: "addmnn"
-  password: "Edn@ESR-3+"
-  use: true
+  host: "localhost"
+  port: "5672"
+  username: "guest"
+  password: "guest"
+  use: false
