@@ -16,6 +16,7 @@ func routeApi(g *gin.Engine) {
 	homeController := new(controller.HomeController)
 	g.GET("/", homeController.Index)
 	g.GET("/config", homeController.Config)
+	g.GET("/httpStatus", homeController.HttpStatus)
 
 	userController := new(controller.UserController)
 	g.GET("/user/list", userController.GetList)

@@ -3,6 +3,7 @@ package config
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"log"
 )
 
 /**
@@ -36,11 +37,11 @@ func init() {
 	var err error
 	b, err := ioutil.ReadFile(ConfigPath)
 	if err != nil {
-		panic(err)
+		log.Fatal("配置加载失败：", err)
 	}
 
 	if err := yaml.Unmarshal(b, Cfg); err != nil {
-		panic(err)
+		log.Fatal("配置解析失败：", err)
 	}
 
 	if Cfg.Port == "" {

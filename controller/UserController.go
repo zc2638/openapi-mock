@@ -153,19 +153,19 @@ func (t *UserController) GetToken(c *gin.Context) {
 		MakeValue(authCode, "required", "msg=authCode不存在").
 		MakeValue(authorization, "required", "msg=身份认证失败")
 	if err := validate.Check(); err != nil {
-		t.Err(c, err)
+		t.ErrData(c, err)
 		return
 	}
 
 	userService := new(service.UserService)
-	if userService.CheckAppToken(authorization) == false {
-		t.Err(c, AuthError)
-		return
-	}
+	//if userService.CheckAppToken(authorization) == false {
+	//	t.Err(c, AuthError)
+	//	return
+	//}
 
 	users, err := userService.GetUsers()
 	if err != nil {
-		t.Err(c, err)
+		t.ErrData(c, err)
 		return
 	}
 
@@ -178,13 +178,13 @@ func (t *UserController) GetToken(c *gin.Context) {
 	}
 
 	if user.ID == "" {
-		t.Err(c, AuthCodeError)
+		t.ErrData(c, AuthCodeError)
 		return
 	}
 
 	userToken, err := userService.CreateUserToken(user)
 	if err != nil {
-		t.Err(c, TokenError)
+		t.ErrData(c, TokenError)
 		return
 	}
 	t.Data(c, userToken)

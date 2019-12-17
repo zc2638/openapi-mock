@@ -24,13 +24,13 @@ func init() {
 	}
 
 	if err := utils.PathCreate("db"); err != nil {
-		log.Fatal(err)
+		log.Fatal("bolt文件夹创建失败：", err)
 	}
 
 	var err error
 	DB, err = open()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("bolt连接失败：", err)
 	}
 
 	err = DB.Update(func(tx *bolt.Tx) error {
@@ -49,7 +49,7 @@ func init() {
 		return nil
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("bolt初始化bucket失败：", err)
 	}
 }
 

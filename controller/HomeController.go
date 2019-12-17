@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"mock/config"
 	"net/http"
+	"strconv"
 )
 
 /**
@@ -17,4 +18,13 @@ func (t *HomeController) Index(c *gin.Context) {
 
 func (t *HomeController) Config(c *gin.Context) {
 	c.JSON(http.StatusOK, config.Cfg)
+}
+
+func (t *HomeController) HttpStatus(c *gin.Context) {
+	statusCode := c.DefaultQuery("statusCode", "200")
+	code, err := strconv.Atoi(statusCode)
+	if err != nil {
+		c.String(http.StatusOK, "解析失败：statusCode参数只支持http状态码整数")
+	}
+	c.String(code, "")
 }
