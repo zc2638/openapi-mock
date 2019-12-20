@@ -11,43 +11,40 @@ import (
 func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
 
 	tenantList := ""
-	if tenants != nil {
-		for _, t := range tenants {
-			tenantList += `<tr align="center">
+	for _, t := range tenants {
+		tenantList += `<tr align="center">
                 <td>` + t.ID + `</td>
                 <td>` + t.Name + `</td>
 				<td>
                     <button onclick="tenantExchange('` + t.ID + `')">换位</button>
                 </td>
             </tr>`
-		}
 	}
 
 	userList := ""
-	if users != nil {
-		for _, u := range users {
+	for _, u := range users {
 
-			gender := "保密"
-			switch u.Gender {
-			case 0:
-				gender = "女"
-			case 1:
-				gender = "男"
-			}
+		gender := "保密"
+		switch u.Gender {
+		case 0:
+			gender = "女"
+		case 1:
+			gender = "男"
+		}
 
-			tenantName := ""
-			if u.TenantList != nil {
-				for _, t := range u.TenantList {
-					role := "用户"
-					if t.UserType == 0 {
-						role = "创始人"
-					}
-					tenantName += t.Name + "|" + role + `<br/>`
+		tenantName := ""
+		if u.TenantList != nil {
+			for _, t := range u.TenantList {
+				role := "用户"
+				if t.UserType == 0 {
+					role = "创始人"
 				}
-				tenantName = strings.TrimRight(tenantName, "<br/>")
+				tenantName += t.Name + "|" + role + `<br/>`
 			}
+			tenantName = strings.TrimRight(tenantName, "<br/>")
+		}
 
-			userList += `<tr align="center">
+		userList += `<tr align="center">
                 <td>` + u.ID + `</td>
                 <td>` + u.UserName + `</td>
                 <td>` + u.NickName + `</td>
@@ -59,7 +56,6 @@ func UserListTemplate(tenants []data.Tenant, users []data.UserData) string {
                     <button onclick="relate('` + u.ID + `')">关联租户</button>
                 </td>
             </tr>`
-		}
 	}
 
 	return `<!doctype html>

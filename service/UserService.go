@@ -232,7 +232,7 @@ func (s *UserService) CreateUserToken(user data.User) (data.UserToken, error) {
 		return data.UserToken{
 			Scope:        "read write",
 			TokenType:    "bearer",
-			ExpiresIn:    int64(user.ExpireAt.Sub(time.Now()) / 1000 / 1000),
+			ExpiresIn:    int64(time.Until(user.ExpireAt) / 1000 / 1000),
 			AccessToken:  user.Token,
 			RefreshToken: user.RefreshToken,
 		}, nil
@@ -369,13 +369,13 @@ func (s *UserService) ChangeTenantIds() error {
 		return err
 	}
 
+	mobileReg, err := regexp.Compile(`^[1-9]\d*$`)
+	if err != nil {
+		return err
+	}
 	var newTenants []data.Tenant
 	for k, tenant := range tenants {
-		match, err := regexp.MatchString(`^[1-9]\d*$`, tenant.ID)
-		if err != nil {
-			return err
-		}
-		if !match {
+		if !mobileReg.MatchString(tenant.ID) {
 			tenant.ID = strconv.Itoa(k + 1)
 		}
 		newTenants = append(newTenants, tenant)

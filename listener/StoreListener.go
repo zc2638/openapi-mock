@@ -31,7 +31,7 @@ func storeApply() {
 
 		validate := validator.NewVdr().MakeStruct(apiData)
 		if err := validate.Check(); err != nil {
-			errorln("valid error: %s", err)
+			errorf("valid error: %s", err)
 			continue
 		}
 
