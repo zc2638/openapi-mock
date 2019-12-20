@@ -27,14 +27,14 @@ func routeApi(g *gin.Engine) {
 	g.POST("/user/relate", userController.UserRelateTenant)
 	g.POST("/user/mobileRest", userController.UserMobileRest)
 
-	g.POST("/service/user/v1/get-token", userController.GetToken)             // (uuc)code换用户token
-	g.POST("/service/api/v1/userinfo", userController.GetUserInfo)            // (uuc)用户token换用户信息
-	g.GET("/service/api/v1/userinfo/tenement", userController.GetUserInfoAll) // (uuc)用户token换用户信息
-	g.POST("/service/oauth/token", userController.Token)                      // (uuc)token处理
-	g.POST("/cuba/getAllUser", userController.GetTenantAllUser)               // 获取租户下所有用户信息
+	g.POST("/service/user/v1/get-token", userController.GetToken)                            // (uuc)code换用户token
+	g.POST("/service/api/v1/userinfo", userController.GetUserInfo)                           // (uuc)用户token换用户信息
+	g.GET("/service/api/v1/userinfo/tenement", userController.GetUserInfoAll)                // (uuc)用户token换用户信息
+	g.POST("/service/oauth/token", userController.Token)                                     // (uuc)token处理
+	g.POST("/cuba/service/tenement/api/tenement/employees", userController.GetTenantAllUser) // 获取租户下所有用户信息
 	g.POST("/cuba/service/uuc_center/login", userController.LoginUserName)
 	g.POST("/service/sso/v1/uuc/jump/uuc", userController.Uuc)
-	
+
 	g.GET("/01", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello 01!")
 	})

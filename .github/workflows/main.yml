@@ -41,7 +41,8 @@ jobs:
         run: go test -v ./...
 
   build:
-    needs: Lint
+    name: Build Project
+    needs: Unit Testing
     strategy:
       matrix:
         go-version: [1.12.x, 1.13.x]

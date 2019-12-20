@@ -306,17 +306,26 @@ func (t *UserController) Token(c *gin.Context) {
 // 获取租户下所有用户信息
 func (t *UserController) GetTenantAllUser(c *gin.Context) {
 
-	tenantId := c.PostForm("tenantId")
+	result := gin.H{
+		"code": "0",
+		"msg": "ok",
+		"isSuccess": false,
+		"imgHost": nil,
+	}
+
+	tenantId := c.PostForm("tenementId")
 	validate := validator.NewVdr().MakeValue(tenantId, "required", "msg=未找到租户")
 	if err := validate.Check(); err != nil {
-		t.Err(c, err)
+		result["msg"] = err.Error()
+		t.Data(c, result)
 		return
 	}
 
 	userService := new(service.UserService)
 	tenants, err := userService.GetTenants()
 	if err != nil {
-		t.Err(c, err)
+		result["msg"] = err.Error()
+		t.Data(c, result)
 		return
 	}
 
@@ -328,13 +337,16 @@ func (t *UserController) GetTenantAllUser(c *gin.Context) {
 		}
 	}
 	if tenant.ID == "" {
-		t.Err(c, TenantError)
+		result["msg"] = TenantError.Error()
+		t.Data(c, result)
 		return
 	}
 
 	users, err := userService.GetUsers()
 	if err != nil {
-		t.Err(c, err)
+		result["msg"] = TenantError.Error()
+		t.Data(c, result)
+		return
 	}
 
 	tenantUserData := make([]data.TenantUserData, 0)
@@ -345,18 +357,19 @@ func (t *UserController) GetTenantAllUser(c *gin.Context) {
 		for _, tl := range u.TenantList {
 			if tl.ID == tenantId {
 				tenantUserData = append(tenantUserData, data.TenantUserData{
-					User: u.User,
+					UserId:   u.ID,
+					UserName: u.UserName,
+					Phone:    u.Phone,
+					HeadImg:  u.HeadImg,
 					UserType: tl.UserType,
 				})
 			}
 		}
 	}
 
-	tenantData := data.TenantData{
-		Tenant: tenant,
-		UserList: tenantUserData,
-	}
-	t.Data(c, tenantData)
+	result["isSuccess"] = true
+	result["data"] = tenantUserData
+	t.Data(c, result)
 }
 
 // 修改用户的openAPI角色

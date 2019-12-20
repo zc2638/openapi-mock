@@ -68,23 +68,11 @@ func (s TenantSet) Less(i, j int) bool {
 	return ii < ij
 }
 
-type TenantData struct {
-	Tenant
-	UserList []TenantUserData `json:"userList"`
-}
-
 type TenantUserData struct {
-	User
-	UserType int `json:"userType"`
-}
-
-type TenantUserDataSet []TenantUserData
-
-func (s TenantUserDataSet) Len() int      { return len(s) }
-func (s TenantUserDataSet) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s TenantUserDataSet) Less(i, j int) bool {
-
-	ii, _ := strconv.Atoi(s[i].ID)
-	ij, _ := strconv.Atoi(s[j].ID)
-	return ii < ij
+	UserId   string `json:"uucUserId"`
+	UserName string `json:"userName"`
+	Phone    string `json:"phone"`
+	Mail     string `json:"mail"`
+	HeadImg  string `json:"headImg"`
+	UserType int    `json:"userType"`
 }
