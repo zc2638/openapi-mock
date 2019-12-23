@@ -1,1 +1,1 @@
-# openapi-mock
+# openapi-mock [![GitHub Actions status | zc2638/openapi-mock](https://github.com/zc2638/openapi-mock/workflows/openapi-mock/badge.svg)](https://github.com/zc2638/openapi-mock/actions?workflow=openapi-mock)

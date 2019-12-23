@@ -1,4 +1,4 @@
-name: Golang-workflow   # 名称
+name: openapi-mock   # 名称
 on: [push, pull_request]
 jobs:
   lint:
