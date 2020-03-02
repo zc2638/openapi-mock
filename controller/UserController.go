@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/zc2638/go-validator"
+	"io/ioutil"
 	"mock/data"
 	"mock/lib/jwtUtil"
 	"mock/service"
@@ -279,26 +281,59 @@ func (t *UserController) GetUserInfoAll(c *gin.Context) {
 
 // token处理
 func (t *UserController) Token(c *gin.Context) {
-
+	fmt.Println(c.Request.ParseForm())
 	grantType := c.PostForm("grant_type")
-	refreshToken := c.PostForm("refresh_token")
-
+	all, _ := ioutil.ReadAll(c.Request.Body)
+	fmt.Println(string(all))
+	fmt.Println(grantType)
+	fmt.Println(c.PostForm("client_id"))
 	userService := new(service.UserService)
-	if grantType == "client_credentials" { // 应用token生成
+	switch grantType {
+	case "client_credentials": // 应用token生成
 		appToken, err := userService.CreateAppToken()
 		if err != nil {
 			t.Err(c, TokenError)
 			return
 		}
 		t.Data(c, appToken)
-	} else if grantType == "refresh_token" { // 用户refreshToken换token
+	case "refresh_token": // 用户refreshToken换token
+		refreshToken := c.PostForm("refresh_token")
 		userToken, err := userService.ParseRefreshToken(refreshToken)
 		if err != nil {
 			t.Err(c, TokenError)
 			return
 		}
 		t.Data(c, userToken)
-	} else {
+	case "password": // 用户名密码换token
+		username := c.PostForm("username")
+		fmt.Println(username)
+		// 不校验密码
+		userService := new(service.UserService)
+		users, err := userService.GetUsers()
+		if err != nil {
+			t.ErrData(c, err)
+			return
+		}
+
+		var user data.User
+		for _, u := range users {
+			if u.Phone == username {
+				user = u.User
+				break
+			}
+		}
+		if user.ID == "" {
+			t.ErrData(c, AuthCodeError)
+			return
+		}
+
+		userToken, err := userService.CreateUserToken(user)
+		if err != nil {
+			t.ErrData(c, TokenError)
+			return
+		}
+		t.Data(c, userToken)
+	default:
 		t.Err(c, ErrorRequest)
 	}
 }
