@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/zc2638/gotool/curlx"
 	"github.com/zctod/go-tool/common/utils"
@@ -8,7 +9,6 @@ import (
 	"io/ioutil"
 	"mock/config"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -16,6 +16,12 @@ import (
  * Created by zc on 2019-11-20.
  */
 type MockController struct{ BaseController }
+
+type Call struct {
+	Address string `json:"address"`
+	Method  string `json:"method"`
+	Sleep   int64  `json:"sleep"`
+}
 
 func (t *MockController) Any(c *gin.Context) {
 
@@ -25,27 +31,33 @@ func (t *MockController) Any(c *gin.Context) {
 		return
 	}
 
-	// sleep
-	sleep := c.GetHeader("sleep")
-	if sleep != "" {
-		sleepTime, err := strconv.Atoi(sleep)
-		if err != nil {
-			t.ErrData(c, err)
-			return
-		}
-		time.Sleep(time.Millisecond * time.Duration(sleepTime))
+	var calls []Call
+	if err := json.Unmarshal(b, &calls); err != nil {
+		t.ErrData(c, err)
+		return
 	}
 
-	// call
-	call := c.GetHeader("call")
-	if call != "" {
-		method := c.GetHeader("method")
-		if method == "" {
-			method = http.MethodGet
+	l := len(calls)
+	if l > 0 {
+		call := calls[0]
+		// sleep
+		if call.Sleep > 0 {
+			time.Sleep(time.Millisecond * time.Duration(call.Sleep))
 		}
+		// call
+
 		r := curlx.NewRequest()
-		r.Url = call
-		r.Method = method
+		r.Url = call.Address
+		r.Method = call.Method
+		if l > 1 {
+			newCalls := calls[1:]
+			nb, err := json.Marshal(newCalls)
+			if err != nil {
+				t.ErrData(c, err)
+				return
+			}
+			r.Body = nb
+		}
 		r.Header = make(http.Header)
 		for _, h := range config.OpenTracingHeaders {
 			r.Header.Set(h, c.GetHeader(h))
@@ -57,7 +69,7 @@ func (t *MockController) Any(c *gin.Context) {
 		}
 		var result interface{}
 		if err := res.ParseJSON(&result); err != nil {
-			t.ErrData(c, err)
+			c.String(http.StatusOK, string(res.Result))
 			return
 		}
 		c.JSON(http.StatusOK, result)
