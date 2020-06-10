@@ -51,12 +51,12 @@ func routeApi(g *gin.Engine) {
 		mock.GET("/api/list", templateController.ApiList)
 		mock.GET("/contract", templateController.Contract)
 
-		mockController := new(controller.MockController)
-		mock.Any("/any", mockController.Any)
-		mock.POST("/upload", mockController.Upload)
-
 		storeController := new(controller.StoreController)
 		mock.POST("/api/audit", storeController.AuditStatus)
 		mock.POST("/contract", storeController.CreateContract)
+
+		mockController := new(controller.MockController)
+		mock.Any("/any", mockController.Any)
+		mock.POST("/upload", mockController.Upload)
 	}
 }

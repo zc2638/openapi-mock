@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/zc2638/go-validator"
 	"mock/data"
@@ -279,8 +280,9 @@ func (t *UserController) GetUserInfoAll(c *gin.Context) {
 
 // token处理
 func (t *UserController) Token(c *gin.Context) {
-	grantType := c.PostForm("grant_type")
+	grantType := c.Query("grant_type")
 	userService := new(service.UserService)
+	fmt.Println(grantType)
 	switch grantType {
 	case "client_credentials": // 应用token生成
 		appToken, err := userService.CreateAppToken()
@@ -298,7 +300,7 @@ func (t *UserController) Token(c *gin.Context) {
 		}
 		t.Data(c, userToken)
 	case "password": // 用户名密码换token
-		username := c.PostForm("username")
+		username := c.Query("username")
 		// 不校验密码
 		users, err := userService.GetUsers()
 		if err != nil {

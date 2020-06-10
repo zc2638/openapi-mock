@@ -11,6 +11,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 	github.com/zc2638/go-validator v0.1.0
+	github.com/zc2638/gotool v0.0.0-20200528080342-200e82def869
 	github.com/zctod/go-tool v0.0.8
 	golang.org/x/sys v0.0.0-20191128015809-6d18c012aee9 // indirect
 	gopkg.in/yaml.v2 v2.2.2

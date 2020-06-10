@@ -33,7 +33,7 @@ func Start() {
 func startServer(g *gin.Engine) {
 
 	server := &http.Server{
-		Addr:           ":" + config.Cfg.Port,
+		Addr:           "127.0.0.1:" + config.Cfg.Port,
 		Handler:        g,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

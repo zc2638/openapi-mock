@@ -2,10 +2,13 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/zc2638/gotool/curlx"
 	"github.com/zctod/go-tool/common/utils"
 	"io"
 	"io/ioutil"
+	"mock/config"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -19,6 +22,45 @@ func (t *MockController) Any(c *gin.Context) {
 	b, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		t.ErrData(c, err)
+		return
+	}
+
+	// sleep
+	sleep := c.GetHeader("sleep")
+	if sleep != "" {
+		sleepTime, err := strconv.Atoi(sleep)
+		if err != nil {
+			t.ErrData(c, err)
+			return
+		}
+		time.Sleep(time.Millisecond * time.Duration(sleepTime))
+	}
+
+	// call
+	call := c.GetHeader("call")
+	if call != "" {
+		method := c.GetHeader("method")
+		if method == "" {
+			method = http.MethodGet
+		}
+		r := curlx.NewRequest()
+		r.Url = call
+		r.Method = method
+		r.Header = make(http.Header)
+		for _, h := range config.OpenTracingHeaders {
+			r.Header.Set(h, c.GetHeader(h))
+		}
+		res, err := r.Do()
+		if err != nil {
+			t.ErrData(c, err)
+			return
+		}
+		var result interface{}
+		if err := res.ParseJSON(&result); err != nil {
+			t.ErrData(c, err)
+			return
+		}
+		c.JSON(http.StatusOK, result)
 		return
 	}
 
