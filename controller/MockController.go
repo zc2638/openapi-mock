@@ -31,49 +31,51 @@ func (t *MockController) Any(c *gin.Context) {
 		return
 	}
 
-	var calls []Call
-	if err := json.Unmarshal(b, &calls); err != nil {
-		t.ErrData(c, err)
-		return
-	}
-
-	l := len(calls)
-	if l > 0 {
-		call := calls[0]
-		// sleep
-		if call.Sleep > 0 {
-			time.Sleep(time.Millisecond * time.Duration(call.Sleep))
+	if len(b) > 0 {
+		var calls []Call
+		if err := json.Unmarshal(b, &calls); err != nil {
+			t.ErrData(c, err)
+			return
 		}
-		// call
 
-		r := curlx.NewRequest()
-		r.Url = call.Address
-		r.Method = call.Method
-		if l > 1 {
-			newCalls := calls[1:]
-			nb, err := json.Marshal(newCalls)
+		l := len(calls)
+		if l > 0 {
+			call := calls[0]
+			// sleep
+			if call.Sleep > 0 {
+				time.Sleep(time.Millisecond * time.Duration(call.Sleep))
+			}
+			// call
+
+			r := curlx.NewRequest()
+			r.Url = call.Address
+			r.Method = call.Method
+			if l > 1 {
+				newCalls := calls[1:]
+				nb, err := json.Marshal(newCalls)
+				if err != nil {
+					t.ErrData(c, err)
+					return
+				}
+				r.Body = nb
+			}
+			r.Header = make(http.Header)
+			for _, h := range config.OpenTracingHeaders {
+				r.Header.Set(h, c.GetHeader(h))
+			}
+			res, err := r.Do()
 			if err != nil {
 				t.ErrData(c, err)
 				return
 			}
-			r.Body = nb
-		}
-		r.Header = make(http.Header)
-		for _, h := range config.OpenTracingHeaders {
-			r.Header.Set(h, c.GetHeader(h))
-		}
-		res, err := r.Do()
-		if err != nil {
-			t.ErrData(c, err)
+			var result interface{}
+			if err := res.ParseJSON(&result); err != nil {
+				c.String(http.StatusOK, string(res.Result))
+				return
+			}
+			c.JSON(http.StatusOK, result)
 			return
 		}
-		var result interface{}
-		if err := res.ParseJSON(&result); err != nil {
-			c.String(http.StatusOK, string(res.Result))
-			return
-		}
-		c.JSON(http.StatusOK, result)
-		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
