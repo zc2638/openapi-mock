@@ -61,7 +61,9 @@ func (t *MockController) Any(c *gin.Context) {
 			}
 			r.Header = make(http.Header)
 			for _, h := range config.OpenTracingHeaders {
-				r.Header.Set(h, c.GetHeader(h))
+				if hv := c.GetHeader(h); hv != "" {
+					r.Header.Set(h, hv)
+				}
 			}
 			res, err := r.Do()
 			if err != nil {
