@@ -2,14 +2,17 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/zc2638/gotool/curlx"
 	"github.com/zctod/go-tool/common/utils"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"mock/config"
 	"mock/lib/network"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -25,6 +28,45 @@ type Call struct {
 }
 
 func (t *MockController) Any(c *gin.Context) {
+	// 增加异常模拟方法
+	if errorPercent, err := strconv.Atoi(c.Query("error_percent")); err == nil {
+		rand.Seed(time.Now().Unix())
+		i := rand.Intn(100)
+		fmt.Printf("%d < %d\n", i, errorPercent)
+		if i <= errorPercent {
+			var errorCode int
+			if c.Query("error_code") != "" {
+				errorCode, err = strconv.Atoi(c.Query("error_code"))
+			} else {
+				switch i % 4 {
+				case 0:
+					errorCode = http.StatusUnauthorized
+				case 1:
+					errorCode = http.StatusNotFound
+				case 2:
+					errorCode = http.StatusInternalServerError
+				case 3:
+					errorCode = http.StatusPermanentRedirect
+				default:
+					errorCode = http.StatusBadRequest
+				}
+			}
+			c.JSON(errorCode, gin.H{
+				"timestamp":     time.Now().UnixNano() / 1e3,
+				"Request-Host":  c.Request.Host,
+				"URL":           c.Request.URL.String(),
+				"RequestURI":    c.Request.RequestURI,
+				"RemoteAddr":    c.Request.RemoteAddr,
+				"Method":        c.Request.Method,
+				"Header":        c.Request.Header,
+				"Server-Host":   network.Hostname(),
+				"Server-Ip":     network.IP(),
+				"Body":          nil,
+				"Request-Chain": nil,
+			})
+			return
+		}
+	}
 
 	b, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
