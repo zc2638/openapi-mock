@@ -52,17 +52,17 @@ func (t *MockController) Any(c *gin.Context) {
 				}
 			}
 			c.JSON(errorCode, gin.H{
-				"timestamp":     time.Now().UnixNano() / 1e3,
-				"Request-Host":  c.Request.Host,
-				"URL":           c.Request.URL.String(),
-				"RequestURI":    c.Request.RequestURI,
-				"RemoteAddr":    c.Request.RemoteAddr,
-				"Method":        c.Request.Method,
-				"Header":        c.Request.Header,
-				"Server-Host":   network.Hostname(),
-				"Server-Ip":     network.IP(),
-				"Body":          nil,
-				"Request-Chain": nil,
+				"timestamp":    time.Now().UnixNano() / 1e3,
+				"Request-Host": c.Request.Host,
+				"URL":          c.Request.URL.String(),
+				"RequestURI":   c.Request.RequestURI,
+				"RemoteAddr":   c.Request.RemoteAddr,
+				"Method":       c.Request.Method,
+				"Header":       c.Request.Header,
+				"Server-Host":  network.Hostname(),
+				"Server-Ip":    network.IP(),
+				"Body":         nil,
+				"Next":         nil,
 			})
 			return
 		}
@@ -74,6 +74,7 @@ func (t *MockController) Any(c *gin.Context) {
 		return
 	}
 	var result interface{}
+	var result_code int
 
 	if len(b) > 0 {
 		var calls []Call
@@ -110,6 +111,9 @@ func (t *MockController) Any(c *gin.Context) {
 				}
 			}
 			res, err := r.Do()
+			if res != nil {
+				result_code = res.StatusCode
+			}
 			if err != nil {
 				result = gin.H{
 					"status":  "error",
@@ -139,7 +143,8 @@ func (t *MockController) Any(c *gin.Context) {
 		"Server-Host":   network.Hostname(),
 		"Server-Ip":     network.IP(),
 		"Body":          string(b),
-		"Request-Chain": result,
+		"Next-Code":     result_code,
+		"Next-Response": result,
 	})
 }
 
