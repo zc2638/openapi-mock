@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mock/config"
+	"mock/lib/network"
 	"net/http"
 	"time"
 )
@@ -30,6 +31,7 @@ func (t *MockController) Any(c *gin.Context) {
 		t.ErrData(c, err)
 		return
 	}
+	var result interface{}
 
 	if len(b) > 0 {
 		var calls []Call
@@ -67,28 +69,35 @@ func (t *MockController) Any(c *gin.Context) {
 			}
 			res, err := r.Do()
 			if err != nil {
-				t.ErrData(c, err)
-				return
+				result = gin.H{
+					"status":  "error",
+					"message": err.Error(),
+				}
+			} else if err := res.ParseJSON(&result); err != nil {
+				result = gin.H{
+					"status":  "parse json error",
+					"message": string(res.Result),
+				}
+				//c.String(http.StatusOK, string(res.Result))
+				//return
 			}
-			var result interface{}
-			if err := res.ParseJSON(&result); err != nil {
-				c.String(http.StatusOK, string(res.Result))
-				return
-			}
-			c.JSON(http.StatusOK, result)
-			return
+			//c.JSON(http.StatusOK, result)
+			//return
 		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"timestamp":  time.Now().UnixNano() / 1e3,
-		"Host":       c.Request.Host,
-		"URL":        c.Request.URL.String(),
-		"RequestURI": c.Request.RequestURI,
-		"RemoteAddr": c.Request.RemoteAddr,
-		"Method":     c.Request.Method,
-		"Header":     c.Request.Header,
-		"Body":       string(b),
+		"timestamp":     time.Now().UnixNano() / 1e3,
+		"Request-Host":  c.Request.Host,
+		"URL":           c.Request.URL.String(),
+		"RequestURI":    c.Request.RequestURI,
+		"RemoteAddr":    c.Request.RemoteAddr,
+		"Method":        c.Request.Method,
+		"Header":        c.Request.Header,
+		"Server-Host":   network.Hostname(),
+		"Server-Ip":     network.IP(),
+		"Body":          string(b),
+		"Request-Chain": result,
 	})
 }
 
