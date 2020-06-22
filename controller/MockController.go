@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/zc2638/gotool/curlx"
@@ -18,13 +19,13 @@ import (
 type MockController struct{ BaseController }
 
 type Call struct {
-	Address string `json:"address"`
-	Method  string `json:"method"`
-	Sleep   int64  `json:"sleep"`
+	Address  string `json:"address"`
+	Method   string `json:"method"`
+	Sleep    int64  `json:"sleep"`     // ms
+	BodySize int    `json:"body_size"` // KB
 }
 
 func (t *MockController) Any(c *gin.Context) {
-
 	b, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		t.ErrData(c, err)
@@ -45,8 +46,16 @@ func (t *MockController) Any(c *gin.Context) {
 			if call.Sleep > 0 {
 				time.Sleep(time.Millisecond * time.Duration(call.Sleep))
 			}
+			if call.BodySize > 0 {
+				var buffer bytes.Buffer
+				currentSize := call.BodySize * 1024
+				for i := 0; i < currentSize; i++ {
+					buffer.WriteString("a")
+				}
+				c.String(http.StatusOK, buffer.String())
+				return
+			}
 			// call
-
 			r := curlx.NewRequest()
 			r.Url = call.Address
 			r.Method = call.Method
