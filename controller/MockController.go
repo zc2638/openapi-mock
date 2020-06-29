@@ -39,6 +39,10 @@ func (t *MockController) Any(c *gin.Context) {
 			var errorCode int
 			if c.Query("error_code") != "" {
 				errorCode, err = strconv.Atoi(c.Query("error_code"))
+				if err != nil {
+					t.ErrData(c, err)
+					return
+				}
 			} else {
 				switch i % 4 {
 				case 0:
