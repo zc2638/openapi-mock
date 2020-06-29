@@ -27,6 +27,11 @@ type Call struct {
 	Method   string `json:"method"`
 	Sleep    int64  `json:"sleep"`     // ms
 	BodySize int    `json:"body_size"` // KB
+	Extend   Extend `json:"extend"`
+}
+
+type Extend struct {
+	Headers []string `json:"headers"`
 }
 
 func (t *MockController) Any(c *gin.Context) {
@@ -73,7 +78,7 @@ func (t *MockController) Any(c *gin.Context) {
 			return
 		}
 	}
-  
+
 	b, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		t.ErrData(c, err)
@@ -124,6 +129,11 @@ func (t *MockController) Any(c *gin.Context) {
 					r.Header.Set(h, hv)
 				}
 			}
+			for _, h := range call.Extend.Headers {
+				if hv := c.GetHeader(h); hv != "" {
+					r.Header.Set(h, hv)
+				}
+			}
 			res, err := r.Do()
 			if res != nil {
 				result_code = res.StatusCode
@@ -138,11 +148,7 @@ func (t *MockController) Any(c *gin.Context) {
 					"status":  "parse json error",
 					"message": string(res.Result),
 				}
-				//c.String(http.StatusOK, string(res.Result))
-				//return
 			}
-			//c.JSON(http.StatusOK, result)
-			//return
 		}
 	}
 
