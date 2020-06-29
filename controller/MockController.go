@@ -3,13 +3,17 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/zc2638/gotool/curlx"
 	"github.com/zctod/go-tool/common/utils"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"mock/config"
+	"mock/lib/network"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -26,11 +30,53 @@ type Call struct {
 }
 
 func (t *MockController) Any(c *gin.Context) {
+	// 增加异常模拟方法
+	if errorPercent, err := strconv.Atoi(c.Query("error_percent")); err == nil {
+		rand.Seed(time.Now().Unix())
+		i := rand.Intn(100)
+		fmt.Printf("%d < %d\n", i, errorPercent)
+		if i <= errorPercent {
+			var errorCode int
+			if c.Query("error_code") != "" {
+				errorCode, err = strconv.Atoi(c.Query("error_code"))
+			} else {
+				switch i % 4 {
+				case 0:
+					errorCode = http.StatusUnauthorized
+				case 1:
+					errorCode = http.StatusNotFound
+				case 2:
+					errorCode = http.StatusInternalServerError
+				case 3:
+					errorCode = http.StatusPermanentRedirect
+				default:
+					errorCode = http.StatusBadRequest
+				}
+			}
+			c.JSON(errorCode, gin.H{
+				"timestamp":    time.Now().UnixNano() / 1e3,
+				"Request-Host": c.Request.Host,
+				"URL":          c.Request.URL.String(),
+				"RequestURI":   c.Request.RequestURI,
+				"RemoteAddr":   c.Request.RemoteAddr,
+				"Method":       c.Request.Method,
+				"Header":       c.Request.Header,
+				"Server-Host":  network.Hostname(),
+				"Server-Ip":    network.IP(),
+				"Body":         nil,
+				"Next":         nil,
+			})
+			return
+		}
+	}
+  
 	b, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		t.ErrData(c, err)
 		return
 	}
+	var result interface{}
+	var result_code int
 
 	if len(b) > 0 {
 		var calls []Call
@@ -75,29 +121,40 @@ func (t *MockController) Any(c *gin.Context) {
 				}
 			}
 			res, err := r.Do()
+			if res != nil {
+				result_code = res.StatusCode
+			}
 			if err != nil {
-				t.ErrData(c, err)
-				return
+				result = gin.H{
+					"status":  "error",
+					"message": err.Error(),
+				}
+			} else if err := res.ParseJSON(&result); err != nil {
+				result = gin.H{
+					"status":  "parse json error",
+					"message": string(res.Result),
+				}
+				//c.String(http.StatusOK, string(res.Result))
+				//return
 			}
-			var result interface{}
-			if err := res.ParseJSON(&result); err != nil {
-				c.String(http.StatusOK, string(res.Result))
-				return
-			}
-			c.JSON(http.StatusOK, result)
-			return
+			//c.JSON(http.StatusOK, result)
+			//return
 		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"timestamp":  time.Now().UnixNano() / 1e3,
-		"Host":       c.Request.Host,
-		"URL":        c.Request.URL.String(),
-		"RequestURI": c.Request.RequestURI,
-		"RemoteAddr": c.Request.RemoteAddr,
-		"Method":     c.Request.Method,
-		"Header":     c.Request.Header,
-		"Body":       string(b),
+		"timestamp":     time.Now().UnixNano() / 1e3,
+		"Request-Host":  c.Request.Host,
+		"URL":           c.Request.URL.String(),
+		"RequestURI":    c.Request.RequestURI,
+		"RemoteAddr":    c.Request.RemoteAddr,
+		"Method":        c.Request.Method,
+		"Header":        c.Request.Header,
+		"Server-Host":   network.Hostname(),
+		"Server-Ip":     network.IP(),
+		"Body":          string(b),
+		"Next-Code":     result_code,
+		"Next-Response": result,
 	})
 }
 
