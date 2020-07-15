@@ -37,7 +37,7 @@ type Extend struct {
 func (t *MockController) Any(c *gin.Context) {
 	// 增加异常模拟方法
 	if errorPercent, err := strconv.Atoi(c.Query("error_percent")); err == nil {
-		rand.Seed(time.Now().Unix())
+		rand.Seed(time.Now().UnixNano())
 		i := rand.Intn(100)
 		fmt.Printf("%d < %d\n", i, errorPercent)
 		if i <= errorPercent {
