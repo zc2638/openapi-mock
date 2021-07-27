@@ -15,10 +15,10 @@ import (
  */
 func Start() {
 
-	g := gin.Default()
+	g := gin.New()
 
 	// 注册全局中间件
-	g.Use(middleware.Cors())
+	g.Use(middleware.Cors(), gin.Recovery())
 
 	// 设置静态路由
 	g.Static("/uploads", "uploads")

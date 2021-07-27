@@ -1,4 +1,4 @@
-FROM golang:alpine as builder
+FROM golang:1.16.3-alpine as builder
 ENV GOPROXY https://goproxy.cn
 ENV GO111MODULE=on
 WORKDIR /go/cache
